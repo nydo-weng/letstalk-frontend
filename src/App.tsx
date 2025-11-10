@@ -1,0 +1,151 @@
+import { useState, useEffect } from 'react';
+import { ScenarioCard } from './components/ScenarioCard';
+import { AudioRecorder } from './components/AudioRecorder';
+import { EvaluationResult } from './components/EvaluationResult';
+import { useAudioRecorder } from './hooks/useAudioRecorder';
+import { getRandomScenario, evaluateAudio } from './services/api';
+import { Scenario, Evaluation } from './types';
+
+type AppState = 'loading' | 'ready' | 'evaluating' | 'results';
+
+function App() {
+  const [state, setState] = useState<AppState>('loading');
+  const [scenario, setScenario] = useState<Scenario | null>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const recorder = useAudioRecorder();
+
+  // 加载初始场景
+  useEffect(() => {
+    loadScenario();
+  }, []);
+
+  const loadScenario = async () => {
+    try {
+      setState('loading');
+      setError(null);
+      const newScenario = await getRandomScenario();
+      setScenario(newScenario);
+      setState('ready');
+    } catch (err) {
+      console.error('Failed to load scenario:', err);
+      setError('Failed to load scenario. Please check your connection and try again.');
+      setState('ready');
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!recorder.audioBlob || !scenario) return;
+
+    try {
+      setState('evaluating');
+      setError(null);
+
+      const result = await evaluateAudio(recorder.audioBlob, scenario);
+      setEvaluation(result);
+      setState('results');
+
+      // 清空录音
+      recorder.clearRecording();
+    } catch (err) {
+      console.error('Evaluation failed:', err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to evaluate. Please try again.'
+      );
+      setState('ready');
+    }
+  };
+
+  const handleNext = () => {
+    if (evaluation?.nextScenario) {
+      // 使用评估返回的下一个场景
+      setScenario(evaluation.nextScenario);
+      setEvaluation(null);
+      setState('ready');
+    } else {
+      // 否则加载新场景
+      loadScenario();
+    }
+  };
+
+  const handleRetry = () => {
+    loadScenario();
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Let's Talk</h1>
+              <p className="text-gray-600 mt-1">Practice English Speaking with AI</p>
+            </div>
+            {state !== 'loading' && scenario && (
+              <button
+                onClick={handleRetry}
+                className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                New Scenario
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <p className="font-medium">Error</p>
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
+
+        {state === 'results' && evaluation ? (
+          <EvaluationResult evaluation={evaluation} onNext={handleNext} />
+        ) : (
+          <div className="space-y-6">
+            {/* Scenario Card */}
+            <ScenarioCard scenario={scenario} loading={state === 'loading'} />
+
+            {/* Audio Recorder */}
+            {state !== 'loading' && (
+              <AudioRecorder
+                recorder={recorder}
+                onSubmit={handleSubmit}
+                isSubmitting={state === 'evaluating'}
+              />
+            )}
+
+            {/* Instructions */}
+            {state === 'ready' && !recorder.isRecording && !recorder.audioBlob && (
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <h3 className="font-semibold text-blue-900 mb-2">How it works:</h3>
+                <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                  <li>Read the scenario above</li>
+                  <li>Click the microphone to start recording</li>
+                  <li>Speak your response in English</li>
+                  <li>Click stop when finished</li>
+                  <li>Submit for AI evaluation and feedback</li>
+                </ol>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="max-w-4xl mx-auto px-4 py-8 text-center text-gray-600 text-sm">
+        <p>Powered by OpenAI Whisper & GPT-4</p>
+        <p className="mt-1">Practice makes perfect! 💪</p>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
