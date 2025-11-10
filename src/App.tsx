@@ -4,7 +4,7 @@ import { AudioRecorder } from './components/AudioRecorder';
 import { EvaluationResult } from './components/EvaluationResult';
 import { useAudioRecorder } from './hooks/useAudioRecorder';
 import { getRandomScenario, evaluateAudio } from './services/api';
-import { Scenario, Evaluation } from './types';
+import type { Scenario, Evaluation } from './types';
 
 type AppState = 'loading' | 'ready' | 'evaluating' | 'results';
 

@@ -1,4 +1,4 @@
-import { Scenario } from '../types';
+import type { Scenario } from '../types';
 
 interface ScenarioCardProps {
   scenario: Scenario | null;

@@ -26,7 +26,7 @@ export interface PronunciationIssue {
 export interface RelevanceAnalysis {
   isRelevant: boolean;
   analysis: string;
-  missingPoints?: string[];
+  missingPoints: string[];
 }
 
 // 流畅度反馈

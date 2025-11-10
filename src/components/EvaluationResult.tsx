@@ -1,4 +1,4 @@
-import { Evaluation } from '../types';
+import type { Evaluation } from '../types';
 
 interface EvaluationResultProps {
   evaluation: Evaluation;
@@ -128,13 +128,12 @@ export function EvaluationResult({ evaluation, onNext }: EvaluationResultProps) 
           {evaluation.feedback.relevance.isRelevant ? '✓ Relevant' : '✗ Not Relevant'}
         </div>
         <p className="text-gray-700 mb-3">{evaluation.feedback.relevance.analysis}</p>
-        {evaluation.feedback.relevance.missingPoints &&
-          evaluation.feedback.relevance.missingPoints.length > 0 && (
-            <div>
-              <h4 className="font-semibold text-sm text-gray-700 mb-2">
-                Points to consider:
-              </h4>
-              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+        {evaluation.feedback.relevance.missingPoints.length > 0 && (
+          <div>
+            <h4 className="font-semibold text-sm text-gray-700 mb-2">
+              Points to consider:
+            </h4>
+            <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
                 {evaluation.feedback.relevance.missingPoints.map((point, index) => (
                   <li key={index}>{point}</li>
                 ))}

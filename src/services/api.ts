@@ -1,4 +1,4 @@
-import { Scenario, Evaluation } from '../types';
+import type { Scenario, Evaluation } from '../types';
 
 // API 基础 URL - 可以通过环境变量配置
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787';
