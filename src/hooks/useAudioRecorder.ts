@@ -60,7 +60,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       setIsRecording(true);
     } catch (err) {
       console.error('Error starting recording:', err);
-      setError('Failed to start recording. Please check microphone permissions.');
+      setError('无法开始录音，请确认浏览器已授予麦克风权限。');
     }
   }, []);
 

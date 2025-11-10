@@ -10,7 +10,7 @@ export async function getRandomScenario(): Promise<Scenario> {
   const response = await fetch(`${API_BASE_URL}/api/scenario`);
 
   if (!response.ok) {
-    throw new Error(`Failed to get scenario: ${response.statusText}`);
+    throw new Error(`获取场景失败：${response.statusText}`);
   }
 
   return response.json();
@@ -34,7 +34,7 @@ export async function evaluateAudio(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: response.statusText }));
-    throw new Error(error.error || 'Failed to evaluate audio');
+    throw new Error(error.error || '评估失败，请稍后再试');
   }
 
   return response.json();
@@ -53,7 +53,7 @@ export async function transcribeAudio(audioBlob: Blob): Promise<{ text: string }
   });
 
   if (!response.ok) {
-    throw new Error('Failed to transcribe audio');
+    throw new Error('转录失败，请稍后再试');
   }
 
   return response.json();

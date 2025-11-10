@@ -35,7 +35,7 @@ export function AudioRecorder({ recorder, onSubmit, isSubmitting }: AudioRecorde
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4">Record Your Response</h3>
+      <h3 className="text-lg font-semibold mb-4">录音并作答（Record Your Response）</h3>
 
       {recorder.error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
@@ -86,7 +86,7 @@ export function AudioRecorder({ recorder, onSubmit, isSubmitting }: AudioRecorde
             <div className="text-2xl font-mono font-bold text-red-500">
               {formatTime(recordingTime)}
             </div>
-            <p className="text-sm text-gray-600 mt-1">Recording...</p>
+            <p className="text-sm text-gray-600 mt-1">录音中 Recording...</p>
           </div>
         )}
 
@@ -101,7 +101,7 @@ export function AudioRecorder({ recorder, onSubmit, isSubmitting }: AudioRecorde
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Re-record
+                重新录制
               </button>
               <button
                 onClick={onSubmit}
@@ -130,10 +130,10 @@ export function AudioRecorder({ recorder, onSubmit, isSubmitting }: AudioRecorde
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    <span>Evaluating...</span>
+                    <span>AI 正在评估...</span>
                   </>
                 ) : (
-                  'Submit for Evaluation'
+                  '提交评估 Submit'
                 )}
               </button>
             </div>
@@ -143,7 +143,7 @@ export function AudioRecorder({ recorder, onSubmit, isSubmitting }: AudioRecorde
         {/* 提示文本 */}
         {!recorder.isRecording && !recorder.audioBlob && (
           <p className="text-sm text-gray-600 text-center">
-            Click the microphone to start recording your response
+            点击麦克风开始录音（Click the mic to start）
           </p>
         )}
       </div>

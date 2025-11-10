@@ -1,7 +1,9 @@
 // 场景定义
 export interface Scenario {
   prompt: string;
+  promptZh?: string;
   context: string;
+  contextZh?: string;
   category: 'daily' | 'business' | 'travel' | 'shopping' | 'dining' | 'medical' | 'social' | 'education';
   difficulty: 'beginner' | 'intermediate' | 'advanced';
 }
@@ -58,6 +60,7 @@ export interface Evaluation {
   scores: Scores;
   feedback: Feedback;
   suggestedResponse: string;
+  suggestedResponseZh: string;
   summary: string;
   nextScenario: Scenario;
 }

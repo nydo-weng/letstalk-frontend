@@ -22,6 +22,23 @@ const difficultyColors: Record<Scenario['difficulty'], string> = {
   advanced: 'bg-red-100 text-red-800',
 };
 
+const categoryLabels: Record<Scenario['category'], string> = {
+  daily: '日常交流',
+  business: '商务沟通',
+  travel: '旅行出行',
+  shopping: '购物',
+  dining: '餐饮点餐',
+  medical: '就医健康',
+  social: '社交场合',
+  education: '校园/学习',
+};
+
+const difficultyLabels: Record<Scenario['difficulty'], string> = {
+  beginner: '入门 Beginner',
+  intermediate: '进阶 Intermediate',
+  advanced: '挑战 Advanced',
+};
+
 export function ScenarioCard({ scenario, loading }: ScenarioCardProps) {
   if (loading) {
     return (
@@ -36,10 +53,13 @@ export function ScenarioCard({ scenario, loading }: ScenarioCardProps) {
   if (!scenario) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">
-        No scenario loaded. Please refresh.
+        暂无场景，请稍后再试。
       </div>
     );
   }
+
+  const promptZh = scenario.promptZh ?? '';
+  const contextZh = scenario.contextZh ?? '';
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
@@ -47,7 +67,7 @@ export function ScenarioCard({ scenario, loading }: ScenarioCardProps) {
         <div className="flex items-center gap-2">
           <span className="text-2xl">{categoryEmojis[scenario.category]}</span>
           <span className="text-sm font-medium text-gray-600 capitalize">
-            {scenario.category}
+            {categoryLabels[scenario.category]} ({scenario.category})
           </span>
         </div>
         <span
@@ -55,13 +75,22 @@ export function ScenarioCard({ scenario, loading }: ScenarioCardProps) {
             difficultyColors[scenario.difficulty]
           }`}
         >
-          {scenario.difficulty}
+          {difficultyLabels[scenario.difficulty]}
         </span>
       </div>
 
-      <h2 className="text-xl font-bold text-gray-900 mb-2">{scenario.prompt}</h2>
-
-      <p className="text-gray-600 text-sm">{scenario.context}</p>
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">练习任务 · Prompt</h2>
+          <p className="text-gray-900">{scenario.prompt}</p>
+          {promptZh && <p className="text-gray-600 text-sm">{promptZh}</p>}
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700">情境背景 · Context</h3>
+          <p className="text-gray-900">{scenario.context}</p>
+          {contextZh && <p className="text-gray-600 text-sm">{contextZh}</p>}
+        </div>
+      </div>
     </div>
   );
 }
