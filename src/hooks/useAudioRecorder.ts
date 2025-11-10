@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 
 export interface UseAudioRecorderReturn {
   isRecording: boolean;
+  recordingSeconds: number;
   audioBlob: Blob | null;
   audioURL: string | null;
   startRecording: () => Promise<void>;
@@ -18,9 +19,13 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioURL, setAudioURL] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const timeoutRef = useRef<number | null>(null);
+  const intervalRef = useRef<number | null>(null);
+  const MAX_DURATION_MS = 40_000;
 
   const startRecording = useCallback(async () => {
     try {
@@ -47,6 +52,15 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       };
 
       mediaRecorder.onstop = () => {
+        if (intervalRef.current) {
+          window.clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+        if (timeoutRef.current) {
+          window.clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+
         const blob = new Blob(chunksRef.current, { type: mimeType });
         setAudioBlob(blob);
         setAudioURL(URL.createObjectURL(blob));
@@ -58,6 +72,20 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       mediaRecorder.start();
       mediaRecorderRef.current = mediaRecorder;
       setIsRecording(true);
+      setRecordingSeconds(0);
+
+      intervalRef.current = window.setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+
+      timeoutRef.current = window.setTimeout(() => {
+        setError('录音已达到 40 秒上限，已自动停止。');
+        const recorder = mediaRecorderRef.current;
+        if (recorder && recorder.state === 'recording') {
+          recorder.stop();
+        }
+        setIsRecording(false);
+      }, MAX_DURATION_MS);
     } catch (err) {
       console.error('Error starting recording:', err);
       setError('无法开始录音，请确认浏览器已授予麦克风权限。');
@@ -65,11 +93,20 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   }, []);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state === 'recording') {
+      recorder.stop();
     }
-  }, [isRecording]);
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setIsRecording(false);
+  }, []);
 
   const clearRecording = useCallback(() => {
     setAudioBlob(null);
@@ -78,10 +115,12 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     }
     setAudioURL(null);
     setError(null);
+    setRecordingSeconds(0);
   }, [audioURL]);
 
   return {
     isRecording,
+    recordingSeconds,
     audioBlob,
     audioURL,
     startRecording,

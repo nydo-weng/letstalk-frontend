@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { UseAudioRecorderReturn } from '../hooks/useAudioRecorder';
 
 interface AudioRecorderProps {
@@ -8,25 +7,6 @@ interface AudioRecorderProps {
 }
 
 export function AudioRecorder({ recorder, onSubmit, isSubmitting }: AudioRecorderProps) {
-  const [recordingTime, setRecordingTime] = useState(0);
-
-  // 录音计时器
-  useEffect(() => {
-    let interval: number | undefined;
-
-    if (recorder.isRecording) {
-      interval = window.setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
-      }, 1000);
-    } else {
-      setRecordingTime(0);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [recorder.isRecording]);
-
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -84,9 +64,10 @@ export function AudioRecorder({ recorder, onSubmit, isSubmitting }: AudioRecorde
         {recorder.isRecording && (
           <div className="text-center">
             <div className="text-2xl font-mono font-bold text-red-500">
-              {formatTime(recordingTime)}
+              {formatTime(recorder.recordingSeconds)}
             </div>
             <p className="text-sm text-gray-600 mt-1">录音中 Recording...</p>
+            <p className="text-xs text-gray-500">(最长 40 秒)</p>
           </div>
         )}
 
@@ -143,7 +124,7 @@ export function AudioRecorder({ recorder, onSubmit, isSubmitting }: AudioRecorde
         {/* 提示文本 */}
         {!recorder.isRecording && !recorder.audioBlob && (
           <p className="text-sm text-gray-600 text-center">
-            点击麦克风开始录音（Click the mic to start）
+            点击麦克风开始录音（Click the mic to start），最长 40 秒
           </p>
         )}
       </div>
